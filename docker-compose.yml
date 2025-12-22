@@ -1,0 +1,48 @@
+version: '3'
+
+networks:
+  cerberus_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+services:
+  # 1. THE GATEWAY (Guacamole)
+  guacamole:
+    image: oznu/guacamole:latest
+    container_name: cerberus_gateway
+    ports:
+      - "8080:8080"
+    networks:
+      cerberus_net:
+        ipv4_address: 172.20.0.2
+    environment:
+      - EXT_AUTH=n
+    restart: always
+
+  # 2. THE ATTACKER (Kali Linux)
+  operator:
+    image: kalilinux/kali-rolling
+    container_name: cerberus_operator
+    tty: true
+    networks:
+      cerberus_net:
+        ipv4_address: 172.20.0.10
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./cerberus_core:/app
+      - ./reports:/app/reports
+      - ./setup_attacker.sh:/root/setup.sh
+
+  # 3. THE TARGET (Safe Mode)
+  target:
+    image: ubuntu:20.04
+    container_name: cerberus_target
+    networks:
+      cerberus_net:
+        ipv4_address: 172.20.0.20
+    command: sleep infinity
+    privileged: true
+    restart: always
