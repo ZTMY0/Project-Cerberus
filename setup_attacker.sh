@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "🐺 Awakening Cerberus Operator Node..."
+echo " Awakening Cerberus Operator Node..."
 
 # 1. Update & Install Core Dependencies
 apt-get update
@@ -22,4 +22,4 @@ fi
 chmod +x /app/cerberus.sh
 chmod +x /app/modules/*.sh 2>/dev/null
 
-echo "✅ Cerberus is ready. Run: /app/cerberus.sh"
+echo " Cerberus is ready. Run: /app/cerberus.sh"
