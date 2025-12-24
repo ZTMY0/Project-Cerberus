@@ -21,9 +21,9 @@ services:
       - EXT_AUTH=n
     restart: always
 
-  # 2. THE ATTACKER (Kali Linux)
+  # 2. THE ATTACKER (custom Kali)
   operator:
-    image: kalilinux/kali-rolling
+    build: .            
     container_name: cerberus_operator
     tty: true
     networks:
@@ -32,11 +32,10 @@ services:
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./cerberus_core:/app
+      - ./cerberus_core:/app 
       - ./reports:/app/reports
-      - ./setup_attacker.sh:/root/setup.sh
 
-  # 3. THE TARGET (Safe Mode)
+  # 3. THE TARGET (Ubuntu)
   target:
     image: ubuntu:20.04
     container_name: cerberus_target
@@ -46,3 +45,5 @@ services:
     command: sleep infinity
     privileged: true
     restart: always
+    volumes:
+      - ./my_project:/app
