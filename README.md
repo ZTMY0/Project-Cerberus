@@ -1,3 +1,10 @@
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Kali Linux](https://img.shields.io/badge/Kali_Linux-557C94?style=for-the-badge&logo=kalilinux&logoColor=white)
+![Bash](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Apache Guacamole](https://img.shields.io/badge/Apache_Guacamole-D22128?style=for-the-badge&logo=apache&logoColor=white)
+![Status](https://img.shields.io/badge/Status-v1.0_Stable-success?style=for-the-badge)
+
 #  Project Cerberus: Automated Security Orchestration Framework
 
 **Project Cerberus** is a modular framework designed to automate the lifecycle of vulnerability management. It bridges the gap between offensive testing and defensive remediation by providing a unified interface for **Auditing, Attacking, and Hardening** Linux environments.
@@ -29,10 +36,9 @@ The infrastructure runs on a **Multi-Container Docker Network** (`172.20.0.0/24`
 ### Quick Start
 1.  Clone the repository:
     ```bash
-    git clone [https://github.com/ZTMY0/Project-Cerberus](https://github.com/ZTMY0/Project-Cerberus)
-    cd cerberus_lab
+    git clone https://github.com/ZTMY0/Project-Cerberus
     ```
-2.  Launch the lab (Builds the environment):
+2.  Launch (Builds the environment):
     ```bash
     docker-compose up -d --build
     ```
