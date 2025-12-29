@@ -1,1 +1,8 @@
-# Git configuration 
+.DS_Store
+Thumbs.db
+
+.docker
+*.log
+
+__pycache__/
+*.pyc

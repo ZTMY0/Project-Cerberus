@@ -10,7 +10,9 @@ networks:
 services:
   # 1. THE GATEWAY (Guacamole)
   guacamole:
-    image: oznu/guacamole:latest
+    # OLD image: oznu/guacamole:latest
+    # NEW image: jwetzell/guacamole:latest
+    image: jwetzell/guacamole:latest 
     container_name: cerberus_gateway
     ports:
       - "127.0.0.1:8080:8080"
@@ -19,12 +21,16 @@ services:
         ipv4_address: 172.20.0.2
     environment:
       - EXT_AUTH=n
+      - HOME=/config
     restart: always
+    volumes:
+      - ./config:/config
 
-  # 2. THE ATTACKER (custom Kali)
+  # 2. THE ATTACKER (Custom Kali Build)
   operator:
-    build: .            
+    build: .
     container_name: cerberus_operator
+    privileged: true
     tty: true
     networks:
       cerberus_net:
@@ -32,7 +38,7 @@ services:
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./cerberus_core:/app 
+      - ./cerberus_core:/app
       - ./reports:/app/reports
 
   # 3. THE TARGET (Ubuntu)
