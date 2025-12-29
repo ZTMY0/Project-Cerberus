@@ -1,7 +1,6 @@
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![Kali Linux](https://img.shields.io/badge/Kali_Linux-557C94?style=for-the-badge&logo=kalilinux&logoColor=white)
 ![Bash](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Apache Guacamole](https://img.shields.io/badge/Apache_Guacamole-D22128?style=for-the-badge&logo=apache&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-v1.0_Stable-success?style=for-the-badge)
 
