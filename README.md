@@ -45,6 +45,7 @@ The infrastructure runs on a **Multi-Container Docker Network** (`172.20.0.0/24`
 Inside the Kali terminal, launch the main controller:
 ```bash
 /app/cerberus.sh
+```
 
 ## Optional: Remote Access (Tailscale)
 
