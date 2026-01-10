@@ -15,6 +15,7 @@ log_event() {
     echo "{\"timestamp\": \"$TIMESTAMP\", \"event_type\": \"$1\", \"severity\": \"$2\", \"target\": \"172.20.0.10\", \"message\": \"$3\", \"threat_score\": $4}" >> "$LOG_FILE"
 }
 
+# Ensure all modules are executable before starting
 chmod +x /app/modules/*.sh 2>/dev/null
 
 log_event "SESSION_START" "User accessed Cerberus Main Menu" "INFO" 0
@@ -54,18 +55,9 @@ BANNER
             /app/modules/attack_arp.sh 
             ;;
         4) 
-            echo "[!] RESETTING CONFIGURATIONS..."
-            # Log this as a CRITICAL event because it removes security
-            log_event "SYSTEM_RESET" "User initiated factory reset (Vulnerable State)" "CRITICAL" 100
-            
-            # Remove Kernel Hardening (IP Forwarding)
-            sed -i '/net.ipv4.ip_forward/d' /etc/sysctl.conf
-            
-            # Remove Password Policy
-            sed -i '/minlen=12/d' /etc/pam.d/common-password
-            
-            echo " SYSTEM RESET TO VULNERABLE."
-            read -p "Press Enter..." 
+            # This now calls the robust script you created
+            log_event "MENU_SELECTION" "Selected: Reset Lab" "CRITICAL" 100
+            /app/modules/reset_lab.sh
             ;;
         5) 
             log_event "SESSION_END" "User exited Cerberus Main Menu" "INFO" 0

@@ -10,8 +10,6 @@ networks:
 services:
   # 1. THE GATEWAY (Guacamole)
   guacamole:
-    # OLD image: oznu/guacamole:latest
-    # NEW image: jwetzell/guacamole:latest
     image: jwetzell/guacamole:latest 
     container_name: cerberus_gateway
     ports:
@@ -48,7 +46,8 @@ services:
     networks:
       cerberus_net:
         ipv4_address: 172.20.0.20
-    command: sleep infinity
+    # ping (iputils-ping) arp (net-tools) on startup then sleep.
+    command: bash -c "apt-get update && apt-get install -y iputils-ping net-tools && sleep infinity"
     privileged: true
     restart: always
     volumes:
