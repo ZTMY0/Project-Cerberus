@@ -1,10 +1,4 @@
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
-![Kali Linux](https://img.shields.io/badge/Kali_Linux-557C94?style=for-the-badge&logo=kalilinux&logoColor=white)
-![Bash](https://img.shields.io/badge/Shell_Script-121011?style=for-the-badge&logo=gnu-bash&logoColor=white)
-![Apache Guacamole](https://img.shields.io/badge/Apache_Guacamole-D22128?style=for-the-badge&logo=apache&logoColor=white)
-![Status](https://img.shields.io/badge/Status-v1.0_Stable-success?style=for-the-badge)
-
-# Project Cerberus: Automated Security Orchestration Framework
+#  Project Cerberus: Automated Security Orchestration Framework
 
 **Project Cerberus** is a modular framework designed to automate the lifecycle of vulnerability management. It bridges the gap between offensive testing and defensive remediation by providing a unified interface for **Auditing, Attacking, and Hardening** Linux environments.
 
@@ -53,10 +47,18 @@ This project demonstrates the critical concept of **Fail-Open vs. Fail-Closed** 
 Inside the Kali terminal, launch the main controller:
 ```bash
 /app/cerberus.sh
-```
-### Remote Access (Tailscale)
-This framework supports secure remote auditing via Tailscale, allowing access from external devices (Tablets/Laptops) without exposing ports to the public internet.
 
-* Install Tailscale on the Host and Client.
+## Optional: Remote Access (Tailscale)
 
-* Access http://<Host-Tailscale-IP>:8080.
+This framework supports secure remote auditing via **Tailscale**, allowing you to access the Kali terminal from **any external device** (Laptop, Tablet, or Smartphone) without exposing ports to the public internet.
+
+### Setup Instructions
+1.  **Host Machine:** Install [Tailscale](https://tailscale.com/) on the computer running the Docker lab.
+2.  **Client Device:** Install Tailscale on your remote device (e.g., your phone or a second laptop) and log in to the same account.
+3.  **Access:**
+    * Find your Host Machine's **Tailscale IP** (e.g., `100.x.y.z`).
+    * Open a browser on the remote device and navigate to:
+      `http://<Tailscale-IP>:8080`
+4.  **Login:** Use the standard Guacamole credentials (`guacadmin`).
+
+**Benefit:** Simulates a "Zero-Trust" remote management scenario. You can trigger attacks or view audit logs from an iPad in a coffee shop or a laptop in another building.
